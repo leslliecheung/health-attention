@@ -45,6 +45,7 @@
 
 ## 应用截图
 
+
 <p align="center">
   <img src="docs/screenshots/dashboard.png" width="400" alt="仪表盘">
   <img src="docs/screenshots/drinkRecord.png" width="400" alt="设置页面">
