@@ -45,14 +45,12 @@
 
 ## 应用截图
 
-> 📸 *截图待添加*
-
-<!--
 <p align="center">
   <img src="docs/screenshots/dashboard.png" width="400" alt="仪表盘">
-  <img src="docs/screenshots/settings.png" width="400" alt="设置页面">
+  <img src="docs/screenshots/drinkRecord.png" width="400" alt="设置页面">
+  <img src="docs/screenshots/statistics.png" width="400" alt="统计分析">
+  <img src="docs/screenshots/settings.png" width="400" alt="设置">
 </p>
--->
 
 ## 环境要求
 
