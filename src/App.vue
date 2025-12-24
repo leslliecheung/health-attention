@@ -19,11 +19,16 @@ import { listen } from '@tauri-apps/api/event'
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
 import Sidebar from '@/components/Sidebar.vue'
 import { useReminderStore } from '@/stores/reminder'
+import { useSettingsStore } from '@/stores/settings'
 
 const reminderStore = useReminderStore()
+const settingsStore = useSettingsStore()
 let unlistenPause: (() => void) | null = null
 
 onMounted(async () => {
+  // 加载设置（包括主题）
+  await settingsStore.loadSettings()
+
   // 初始化提醒系统
   await reminderStore.initReminders()
 
@@ -56,13 +61,15 @@ onUnmounted(() => {
 }
 
 .el-aside {
-  background: linear-gradient(180deg, #409eff 0%, #337ecc 100%);
+  background: var(--bg-sidebar);
   box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+  transition: background 0.3s ease;
 }
 
 .el-main {
-  background-color: #f5f7fa;
+  background-color: var(--bg-primary);
   padding: 20px;
   overflow-y: auto;
+  transition: background-color 0.3s ease;
 }
 </style>

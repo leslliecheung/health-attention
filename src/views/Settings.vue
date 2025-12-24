@@ -67,6 +67,48 @@
         </el-form-item>
       </div>
 
+      <!-- 眼睛休息提醒设置 -->
+      <div class="settings-section stat-card">
+        <h3>👁️ 眼睛休息提醒 (20-20-20法则)</h3>
+        <el-form-item label="开启提醒">
+          <el-switch
+            v-model="settings.eyeReminderEnabled"
+            @change="(val) => updateSetting('eyeReminderEnabled', val)"
+          />
+        </el-form-item>
+        <el-form-item label="提醒间隔">
+          <el-input-number
+            v-model="settings.eyeIntervalMinutes"
+            :min="10"
+            :max="60"
+            :step="5"
+            :disabled="!settings.eyeReminderEnabled"
+            @change="(val) => updateSetting('eyeIntervalMinutes', val)"
+          />
+          <span class="unit">分钟</span>
+        </el-form-item>
+        <el-form-item label="休息时长">
+          <el-input-number
+            v-model="settings.eyeRestDurationSeconds"
+            :min="10"
+            :max="60"
+            :step="5"
+            :disabled="!settings.eyeReminderEnabled"
+            @change="(val) => updateSetting('eyeRestDurationSeconds', val)"
+          />
+          <span class="unit">秒（建议20秒）</span>
+        </el-form-item>
+        <el-alert
+          v-if="settings.eyeReminderEnabled"
+          title="20-20-20 法则"
+          type="info"
+          :closable="false"
+          show-icon
+        >
+          每隔 {{ settings.eyeIntervalMinutes }} 分钟，看向 6 米（20 英尺）外的物体至少 {{ settings.eyeRestDurationSeconds }} 秒，可有效缓解眼疲劳。
+        </el-alert>
+      </div>
+
       <!-- 工作时间设置 -->
       <div class="settings-section stat-card">
         <h3>🕐 工作时间</h3>
@@ -142,6 +184,21 @@
         </el-form-item>
       </div>
 
+      <!-- 外观设置 -->
+      <div class="settings-section stat-card">
+        <h3>🎨 外观设置</h3>
+        <el-form-item label="主题模式">
+          <el-radio-group
+            v-model="settings.themeMode"
+            @change="(val) => updateSetting('themeMode', val)"
+          >
+            <el-radio value="light">浅色</el-radio>
+            <el-radio value="dark">深色</el-radio>
+            <el-radio value="auto">跟随系统</el-radio>
+          </el-radio-group>
+        </el-form-item>
+      </div>
+
       <!-- 系统设置 -->
       <div class="settings-section stat-card">
         <h3>⚙️ 系统设置</h3>
@@ -162,15 +219,40 @@
             v-model="settings.soundEnabled"
             @change="(val) => updateSetting('soundEnabled', val)"
           />
+        </el-form-item>
+        <el-form-item v-if="settings.soundEnabled" label="音效类型">
+          <el-select
+            v-model="settings.soundType"
+            placeholder="选择音效"
+            @change="(val) => updateSetting('soundType', val)"
+          >
+            <el-option label="默认双音" value="default" />
+            <el-option label="柔和音" value="gentle" />
+            <el-option label="钟声" value="chime" />
+            <el-option label="铃声" value="bell" />
+            <el-option label="水滴声" value="water" />
+            <el-option label="无声" value="none" />
+          </el-select>
           <el-button
-            v-if="settings.soundEnabled"
             type="primary"
             link
             style="margin-left: 12px;"
-            @click="testSound"
+            @click="previewCurrentSound"
           >
-            测试声音
+            试听
           </el-button>
+        </el-form-item>
+        <el-form-item v-if="settings.soundEnabled && settings.soundType !== 'none'" label="音量">
+          <el-slider
+            v-model="settings.soundVolume"
+            :min="0"
+            :max="100"
+            :step="10"
+            show-stops
+            style="width: 200px;"
+            @change="(val) => updateSetting('soundVolume', val)"
+          />
+          <span class="unit">{{ settings.soundVolume }}%</span>
         </el-form-item>
       </div>
 
@@ -221,7 +303,9 @@ const initTimeValues = () => {
 const updateSetting = async <K extends keyof Settings>(key: K, value: Settings[K]) => {
   await settingsStore.updateSetting(key, value)
   // 如果修改了提醒相关设置，重启提醒
-  if (['waterReminderEnabled', 'waterIntervalMinutes', 'sitReminderEnabled', 'sitIntervalMinutes'].includes(key)) {
+  if (['waterReminderEnabled', 'waterIntervalMinutes',
+       'sitReminderEnabled', 'sitIntervalMinutes',
+       'eyeReminderEnabled', 'eyeIntervalMinutes', 'eyeRestDurationSeconds'].includes(key)) {
     reminderStore.restartReminders()
   }
   ElMessage.success('设置已保存')
@@ -255,10 +339,9 @@ const restartReminders = () => {
   ElMessage.success('提醒已重启')
 }
 
-// 测试声音
-const testSound = async () => {
-  await reminderStore.playReminderSound()
-  ElMessage.success('声音测试完成')
+// 预览当前音效
+const previewCurrentSound = async () => {
+  await reminderStore.previewSound(settings.value.soundType, settings.value.soundVolume)
 }
 
 // 恢复默认设置
@@ -305,10 +388,10 @@ onMounted(async () => {
 .settings-section h3 {
   font-size: 16px;
   font-weight: 600;
-  color: #303133;
+  color: var(--text-primary);
   margin-bottom: 20px;
   padding-bottom: 12px;
-  border-bottom: 1px solid #ebeef5;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .settings-form :deep(.el-form-item) {
@@ -317,13 +400,13 @@ onMounted(async () => {
 
 .unit {
   margin-left: 8px;
-  color: #909399;
+  color: var(--text-muted);
   font-size: 14px;
 }
 
 .time-separator {
   margin: 0 12px;
-  color: #909399;
+  color: var(--text-muted);
 }
 
 .settings-actions {
@@ -336,5 +419,10 @@ onMounted(async () => {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+}
+
+:deep(.el-radio-group) {
+  display: flex;
+  gap: 16px;
 }
 </style>

@@ -23,6 +23,11 @@
         <span>饮水记录</span>
       </el-menu-item>
 
+      <el-menu-item index="/activity">
+        <el-icon><Promotion /></el-icon>
+        <span>活动记录</span>
+      </el-menu-item>
+
       <el-menu-item index="/statistics">
         <el-icon><DataAnalysis /></el-icon>
         <span>统计分析</span>
@@ -35,7 +40,7 @@
     </el-menu>
 
     <div class="sidebar-footer">
-      <div class="version">v0.1.0</div>
+      <div class="version">v0.2.0</div>
     </div>
   </div>
 </template>
@@ -43,7 +48,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { Sunny, Odometer, Coffee, DataAnalysis, Setting } from '@element-plus/icons-vue'
+import { Sunny, Odometer, Coffee, Promotion, DataAnalysis, Setting } from '@element-plus/icons-vue'
 
 const route = useRoute()
 

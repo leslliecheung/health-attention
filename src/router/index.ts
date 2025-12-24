@@ -17,6 +17,12 @@ const router = createRouter({
       meta: { title: '饮水记录' }
     },
     {
+      path: '/activity',
+      name: 'activity',
+      component: () => import('@/views/ActivityRecord.vue'),
+      meta: { title: '活动记录' }
+    },
+    {
       path: '/statistics',
       name: 'statistics',
       component: () => import('@/views/Statistics.vue'),
